@@ -1,0 +1,43 @@
+name: Daily Quant Data Fetch
+
+on:
+  schedule:
+    # Runs at 10:30 AM UTC (4:00 PM IST), Monday through Friday
+    - cron: '30 10 * * 1-5'
+  
+  # This line adds a "Run Workflow" button on GitHub so you can test it manually
+  workflow_dispatch: 
+
+jobs:
+  fetch-and-store:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Gives the bot permission to push data back to your repo
+
+    steps:
+      # 1. Download your code and existing Parquet files onto the temporary server
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Install Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # 3. Install your specific packages
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade --no-cache-dir git+https://github.com/rongardF/tvdatafeed.git
+          pip install -r requirements.txt
+
+      # 4. Run your exact python script
+      - name: Run Data Fetcher
+        run: python main.py
+
+      # 5. Commit the new data back to your repository safely
+      - name: Commit and Push Updated Data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "bot: daily market data update"
+          file_pattern: "data/raw/*.parquet"
