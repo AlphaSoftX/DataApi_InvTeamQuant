@@ -1,12 +1,14 @@
 from fastapi import APIRouter
-import pandas as pd
 from models import DataRequest, DataResponse, SymbolData, UnavailableInfo, Frequency
 from loader import load_symbol
 from validator import check_empty, check_range_coverage
 from config import RAM_LIMIT, FREQUENCY_TO_TF
-from resampler import NSEResampler
+from resampler import convert
 
 router = APIRouter()
+
+# frequencies that use stored daily bars from parquet
+DAILY_SOURCE_FREQS = {Frequency.DAY_1, Frequency.WEEK_1, Frequency.MONTH_1}
 
 
 @router.post("/data", response_model=DataResponse)
@@ -16,13 +18,17 @@ async def get_data(req: DataRequest):
     total_bytes = 0
     target_tf   = FREQUENCY_TO_TF[req.frequency]
 
+    # determine which parquet frequency to load
+    parquet_freq = "1d" if req.frequency in DAILY_SOURCE_FREQS else "30min"
+
     for symbol in req.symbols:
 
         df, unavailable_reason, avail_from, avail_to = load_symbol(
-            symbol    = symbol,
-            date_from = req.date_from,
-            date_to   = req.date_to,
-            bars      = req.bars,
+            symbol       = symbol,
+            parquet_freq = parquet_freq,
+            date_from    = req.date_from,
+            date_to      = req.date_to,
+            bars         = req.bars,
         )
 
         # --- boundary not found ---
@@ -36,13 +42,13 @@ async def get_data(req: DataRequest):
             continue
 
         # --- resample if needed ---
-        if req.frequency != Frequency.MIN_30:
-            df = NSEResampler.convert(df, target_tf=target_tf, symbol=None)
-            # NSEResampler returns DatetimeIndex, reset to column
-            df = df.reset_index()
+        if req.frequency == Frequency.DAY_1 or req.frequency == Frequency.MIN_30:
+            # use stored daily bars / 30min bars directly, just drop non-OHLCV columns
+            df = df.drop(columns=["symbol", "frequency"], errors="ignore")
         else:
-            # resampler normally strips sno and symbol, do it manually for 30min
-            df = df.drop(columns=["sno", "symbol"], errors="ignore")
+            # resample 30min bars to 1h/2h/4h
+            df = convert(df, target_tf=target_tf, symbol=None)
+            df = df.reset_index()
 
         # --- range coverage check (formats 1 and 3, on resampled data) ---
         coverage_issue = check_range_coverage(symbol, avail_from, avail_to, req)

@@ -1,22 +1,22 @@
 import pyarrow.parquet as pq
-import pyarrow.compute as pc
 import pandas as pd
 from config import DATA_FILE
 
 
 
-def load_symbol(symbol: str, date_from=None, date_to=None, bars=None):
+def load_symbol(symbol: str, parquet_freq: str, date_from=None, date_to=None, bars=None):
     """
-    Load 30min bars for a symbol into a DataFrame, then apply date filters.
+    Load bars for a symbol into a DataFrame, then apply date filters.
     Bar count validation and trimming is handled by the caller after resampling.
     date_from and date_to are always UTC-aware datetimes (converted from IST in models.py).
 
     Parameters
     ----------
-    symbol    : ticker string
-    date_from : optional UTC datetime lower bound (inclusive)
-    date_to   : optional UTC datetime upper bound (inclusive)
-    bars      : whether a bars-based format is requested (used to decide filter strategy)
+    symbol       : ticker string
+    parquet_freq : frequency to load from parquet — "30min" or "1d"
+    date_from    : optional UTC datetime lower bound (inclusive)
+    date_to      : optional UTC datetime upper bound (inclusive)
+    bars         : whether a bars-based format is requested (used to decide filter strategy)
 
     Returns
     -------
@@ -25,8 +25,11 @@ def load_symbol(symbol: str, date_from=None, date_to=None, bars=None):
     - DataFrame is None with reason when no data found at requested boundary
     - DataFrame with rows when data found
     """
-    # load full symbol in one read
-    table = pq.read_table(DATA_FILE, filters=[("symbol", "=", symbol)])
+    # load full symbol + frequency in one read
+    table = pq.read_table(DATA_FILE, filters=[
+        ("symbol",    "=", symbol),
+        ("frequency", "=", parquet_freq),
+    ])
 
     if table.num_rows == 0:
         return None, None, None, None  # symbol completely missing, check_empty handles this
