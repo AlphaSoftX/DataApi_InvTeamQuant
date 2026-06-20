@@ -105,3 +105,24 @@ class DataResponse(BaseModel):
     status:      str
     data:        list[SymbolData]      = []
     unavailable: list[UnavailableInfo] = []
+
+    # Append to the bottom of requests/models.py
+from datetime import datetime
+
+class DepthTier(BaseModel):
+    price: float
+    quantity: int
+    orders: int
+
+class MarketDepth(BaseModel):
+    buy: list[DepthTier]   # Bids (sorted descending by price)
+    sell: list[DepthTier]  # Asks (sorted ascending by price)
+
+class OrderBookSnapshot(BaseModel):
+    instrument_token: int
+    timestamp: datetime
+    depth: MarketDepth
+
+class OrderBookResponse(BaseModel):
+    status: str
+    data: dict[str, OrderBookSnapshot]  # Keyed by instrument token string
