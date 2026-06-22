@@ -1,25 +1,21 @@
-from fastapi import APIRouter
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from fastapi import APIRouter, HTTPException, Query
 from models import DataRequest, DataResponse, SymbolData, UnavailableInfo, Frequency
 from loader import load_symbol
 from validator import check_empty, check_range_coverage
-from config import RAM_LIMIT, FREQUENCY_TO_TF
+from config import RAM_LIMIT, DAILY_SOURCE_FREQS
 from resampler import convert
 
-router = APIRouter()
+IST = ZoneInfo("Asia/Kolkata")
 
-# frequencies that use stored daily bars from parquet
-DAILY_SOURCE_FREQS = {Frequency.DAY_1, Frequency.WEEK_1, Frequency.MONTH_1}
-
-
-@router.post("/data", response_model=DataResponse)
-async def get_data(req: DataRequest):
+async def fetch_data(req: DataRequest) -> DataResponse:
     data        = []
     unavailable = []
     total_bytes = 0
-    target_tf   = FREQUENCY_TO_TF[req.frequency]
 
     # determine which parquet frequency to load
-    parquet_freq = "1d" if req.frequency in DAILY_SOURCE_FREQS else "30min"
+    parquet_freq = Frequency.DAY_1 if req.frequency in DAILY_SOURCE_FREQS else Frequency.MIN_1
 
     for symbol in req.symbols:
 
@@ -41,13 +37,11 @@ async def get_data(req: DataRequest):
             unavailable.append(check_empty(symbol, avail_from, avail_to))
             continue
 
-        # --- resample if needed ---
-        if req.frequency == Frequency.DAY_1 or req.frequency == Frequency.MIN_30:
-            # use stored daily bars / 30min bars directly, just drop non-OHLCV columns
+        # --- resample or passthrough ---
+        if req.frequency == Frequency.MIN_1 or req.frequency == Frequency.DAY_1:
             df = df.drop(columns=["symbol", "frequency"], errors="ignore")
         else:
-            # resample 30min bars to 1h/2h/4h
-            df = convert(df, target_tf=target_tf, symbol=None)
+            df = convert(df, frequency=req.frequency)
             df = df.reset_index()
 
         # --- range coverage check (formats 1 and 3, on resampled data) ---
@@ -76,12 +70,7 @@ async def get_data(req: DataRequest):
                 df = df.iloc[-req.bars:]
 
         # --- format datetime for output ---
-        # df["datetime"] = df["datetime"].dt.strftime("%Y-%m-%dT%H:%M:%SZ")
-        df["datetime"] = (
-            df["datetime"]
-            .dt.tz_convert("Asia/Kolkata")
-            .dt.strftime("%Y-%m-%dT%H:%M:%S%z")
-        )
+        df["datetime"] = df["datetime"].dt.strftime("%Y-%m-%dT%H:%M:%S%z")
 
         # --- RAM check on final resampled data ---
         total_bytes += df.memory_usage(deep=True).sum()
@@ -113,3 +102,74 @@ async def get_data(req: DataRequest):
         data        = data,
         unavailable = unavailable,
     )
+
+def parse_ist_datetime(value: str) -> datetime:
+    try:
+        return datetime.strptime(
+            value,
+            "%Y-%m-%d %H:%M:%S"
+        ).replace(tzinfo=IST)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="Expected format: YYYY-MM-DD HH:MM:SS"
+        )
+
+def convert_to_kite_response(resp: DataResponse) -> dict:
+    if not resp.data:
+        return {
+            "status": "success",
+            "data": {
+                "candles": []
+            }
+        }
+
+    symbol_data = resp.data[0]
+
+    candles = []
+
+    for bar in symbol_data.bars:
+
+        candle = [
+            bar["datetime"],
+            bar["open"],
+            bar["high"],
+            bar["low"],
+            bar["close"],
+            bar["volume"],
+        ]
+
+        candles.append(candle)
+
+    return {
+        "status": "success",
+        "data": {
+            "candles": candles
+        }
+    }
+
+router = APIRouter()
+
+@router.post("/data", response_model=DataResponse)
+async def post_endpoint(req: DataRequest):
+    return await fetch_data(req)
+
+@router.get(
+    "/instruments/historical/{symbol}/{interval}"
+)
+async def get_endpoint(
+    symbol: str,
+    interval: Frequency,
+    from_date: str = Query(alias="from"),
+    to_date: str = Query(alias="to")
+):
+    req = DataRequest(
+        symbols=[symbol],
+        frequency=interval,
+        date_from=parse_ist_datetime(from_date),
+        date_to=parse_ist_datetime(to_date),
+    )
+
+    result = await fetch_data(req)
+
+    return convert_to_kite_response(result)

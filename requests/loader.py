@@ -8,14 +8,14 @@ def load_symbol(symbol: str, parquet_freq: str, date_from=None, date_to=None, ba
     """
     Load bars for a symbol into a DataFrame, then apply date filters.
     Bar count validation and trimming is handled by the caller after resampling.
-    date_from and date_to are always UTC-aware datetimes (converted from IST in models.py).
+    date_from and date_to are always IST-aware datetimes.
 
     Parameters
     ----------
     symbol       : ticker string
-    parquet_freq : frequency to load from parquet — "30min" or "1d"
-    date_from    : optional UTC datetime lower bound (inclusive)
-    date_to      : optional UTC datetime upper bound (inclusive)
+    parquet_freq : frequency to load from parquet — "1min" or "1d"
+    date_from    : optional IST datetime lower bound (inclusive)
+    date_to      : optional IST datetime upper bound (inclusive)
     bars         : whether a bars-based format is requested (used to decide filter strategy)
 
     Returns
@@ -35,7 +35,7 @@ def load_symbol(symbol: str, parquet_freq: str, date_from=None, date_to=None, ba
         return None, None, None, None  # symbol completely missing, check_empty handles this
 
     df = table.to_pandas()
-    df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
+    df["datetime"] = pd.to_datetime(df["datetime"])
     df = df.sort_values("datetime").reset_index(drop=True)
 
     # capture full available range before any filtering

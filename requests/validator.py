@@ -1,8 +1,4 @@
-import pandas as pd
-from zoneinfo import ZoneInfo
 from models import DataRequest, UnavailableInfo
-
-IST = ZoneInfo("Asia/Kolkata")
 
 
 def check_empty(symbol: str, avail_from, avail_to) -> UnavailableInfo:
@@ -21,7 +17,7 @@ def check_empty(symbol: str, avail_from, avail_to) -> UnavailableInfo:
         symbol       = symbol,
         reason       = (
             f"requested range not available for {symbol}, "
-            f"available data is from {avail_from.tz_convert(IST).date()} to {avail_to.tz_convert(IST).date()}, "
+            f"available data is from {avail_from.date()} to {avail_to.date()}, "
             f"use fetch service to get missing data"
         )
     )
@@ -36,17 +32,17 @@ def check_range_coverage(symbol: str, avail_from, avail_to, req: DataRequest) ->
     if req.bars:
         return None  # bars-based formats handled in router after resampling
 
-    actual_from_ist = avail_from.tz_convert(IST).date()
-    actual_to_ist   = avail_to.tz_convert(IST).date()
+    actual_from_ist = avail_from.date()
+    actual_to_ist   = avail_to.date()
 
     gaps = []
     if req.date_from:
-        requested_from_ist = req.date_from.astimezone(IST).date()
+        requested_from_ist = req.date_from.date()
         if actual_from_ist > requested_from_ist:
             gaps.append(f"data starts at {actual_from_ist} IST, requested from {requested_from_ist} IST")
 
     if req.date_to:
-        requested_to_ist = req.date_to.astimezone(IST).date()
+        requested_to_ist = req.date_to.date()
         if actual_to_ist < requested_to_ist:
             gaps.append(f"data ends at {actual_to_ist} IST, requested to {requested_to_ist} IST")
 

@@ -1,0 +1,23 @@
+I have updated to support zerodha kite like api 
+Referenced from https://kite.trade/docs/connect/v3/historical/
+
+There are somethings that needs attention before using this
+
+> The continuous (0/1) and OI (0/1) options are not supported for equity!
+> TvDataFeed gives adjusted data (eg, for cases like stock splits and bonuses), 
+  but kite provides raw data (recheck once).
+> You need authentication to be able to use kite data,
+> Kite's api needs something called instrument_token in url parameters which 
+  can be found from `GET /instruments`.
+  This api however instead of instrument_token parameter uses symbol from
+  tvDataFeed exactly as stored in database parquet file.
+> Using date from and to options in request parameters can lead to wrong
+  datetime return value for this api, because using a 1 hour (60minute)
+  frequency and giving from-to gap less than 1 hour will result in different 
+  datetime return field as these fields are fixed and only have specific
+  divisions between 9:15 to 15:30 based on frequency.
+> Have tried to imitate the error and response type of kite (recheck once)
+> There still exists old /data endpoint with post request as before
+
+Also the number of 1 minute bars requested in datafetch.py was 150*375 (150 days), 
+but I still got only 6000 bars due to capping by the TradeView Api

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, field_validator, model_validator
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Optional
 from enum import Enum
 from zoneinfo import ZoneInfo
@@ -8,18 +8,25 @@ IST = ZoneInfo("Asia/Kolkata")
 
 
 class Frequency(str, Enum):
-    MIN_30 = "30min"
-    HOUR_1 = "1h"
-    HOUR_2 = "2h"
-    HOUR_4 = "4h"
-    DAY_1  = "1d"
-    WEEK_1 = "1w"
-    MONTH_1 = "1m"
+    MIN_1   = "minute"
+    MIN_3   = "3minute"
+    MIN_5   = "5minute"
+    MIN_10  = "10minute"
+    MIN_15  = "15minute"
+    MIN_30  = "30minute"
+    MIN_45  = "45minute"
+    HOUR_1  = "60minute"
+    HOUR_2  = "120minute"
+    HOUR_3  = "180minute"
+    HOUR_4  = "240minute"
+    DAY_1   = "day"
+    WEEK_1  = "week"
+    MONTH_1 = "month"
 
 
 class DataRequest(BaseModel):
     symbols:   list[str]
-    frequency: Frequency          = Frequency.MIN_30
+    frequency: Frequency          = Frequency.DAY_1
     date_from: Optional[datetime] = None
     date_to:   Optional[datetime] = None
     bars:      Optional[int]      = None
@@ -40,16 +47,15 @@ class DataRequest(BaseModel):
 
     @field_validator("date_from", "date_to", mode="before")
     @classmethod
-    def parse_ist_to_utc(cls, v):
+    def parse_datetime(cls, v):
         if v is None:
             return v
         if isinstance(v, str):
             v = datetime.fromisoformat(v)
         if isinstance(v, datetime):
-            # treat naive datetimes as IST, then convert to UTC
+            # treat naive datetimes as IST
             if v.tzinfo is None:
                 v = v.replace(tzinfo=IST)
-            return v.astimezone(timezone.utc)
         return v
 
     @model_validator(mode="after")
