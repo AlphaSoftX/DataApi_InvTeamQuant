@@ -1,13 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query, HTTPException
 from models import DataRequest, DataResponse, SymbolData, UnavailableInfo, Frequency
 from loader import load_symbol
 from validator import check_empty, check_range_coverage
 from config import RAM_LIMIT, FREQUENCY_TO_TF
 from resampler import convert
-from fastapi import Query, HTTPException, WebSocket, WebSocketDisconnect
-from models import OrderBookResponse, OrderBookSnapshot, MarketDepth, DepthTier
 from datetime import datetime, timezone
-import asyncio
 
 router = APIRouter()
 
@@ -156,54 +153,16 @@ async def get_data(req: DataRequest):
         unavailable = unavailable,
     )
 
-# New Order Book Endpoint
-
-@router.get("/marketquote/orderbook", response_model=OrderBookResponse)
-async def get_order_book_snapshot(i: list[str] = Query(..., description="List of instrument tokens")):
+@router.get("/quote", response_model=dict)
+async def get_orderbook_endpoint(symbol: str = Query(alias="i")):
     """
-    Fetches the instantaneous Level 2 market depth snapshot for requested instrument tokens.
+    Fetches the instantaneous market depth snapshot for requested instrument tokens.
     """
-    response_data = {}
-    for token in i:
-        if token in LIVE_ORDER_BOOK_STATE:
-            response_data[token] = LIVE_ORDER_BOOK_STATE[token]
-        else:
-            raise HTTPException(
-                status_code=404, 
-                detail=f"Instrument token {token} not found in active live tracking matrix."
-            )
-    return OrderBookResponse(status="success", data=response_data)
-
-
-class OrderBookStreamManager:
-    def __init__(self):
-        self.active_connections: list[WebSocket] = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        if websocket in self.active_connections:
-            self.active_connections.remove(websocket)
-
-stream_manager = OrderBookStreamManager()
-
-@router.websocket("/marketquote/stream/depth")
-async def stream_depth_endpoint(websocket: WebSocket):
-    """
-    WebSocket channel providing a continuous, real-time push mechanism 
-    for the live order book cache directly to connected quant strategies.
-    """
-    await stream_manager.connect(websocket)
-    try:
-        while True:
-            payload = {
-                "type": "depth_update",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "data": LIVE_ORDER_BOOK_STATE
-            }
-            await websocket.send_json(payload)
-            await asyncio.sleep(0.1)
-    except WebSocketDisconnect:
-        stream_manager.disconnect(websocket)
+    if symbol in LIVE_ORDER_BOOK_STATE:
+        response_data = { symbol: LIVE_ORDER_BOOK_STATE[symbol] }
+        return { "status": "success", "data": response_data }
+    else:
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Instrument token {symbol} not found in active live tracking matrix."
+        )
