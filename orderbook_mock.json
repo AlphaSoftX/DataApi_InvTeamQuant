@@ -1,0 +1,302 @@
+{
+  "NSE:RELIANCE": {
+    "2024-01-15 09:15:00": {
+      "instrument_token": 738561,
+      "timestamp": "2024-01-15 09:15:00",
+      "last_trade_time": "2024-01-15 09:14:59",
+      "last_price": 2420.50,
+      "last_quantity": 10,
+      "buy_quantity": 3200,
+      "sell_quantity": 1800,
+      "volume": 120000,
+      "average_price": 2418.75,
+      "oi": 0,
+      "oi_day_high": 0,
+      "oi_day_low": 0,
+      "net_change": 12.50,
+      "lower_circuit_limit": 2178.45,
+      "upper_circuit_limit": 2662.55,
+      "ohlc": { "open": 2408.00, "high": 2425.00, "low": 2405.50, "close": 2408.00 },
+      "depth": {
+        "buy": [
+          {"price": 2420.50, "quantity": 500, "orders": 5},
+          {"price": 2420.25, "quantity": 1100, "orders": 12}
+        ],
+        "sell": [
+          {"price": 2420.75, "quantity": 300, "orders": 2},
+          {"price": 2421.00, "quantity": 1400, "orders": 9}
+        ]
+      }
+    },
+    "2024-01-15 09:16:00": {
+      "instrument_token": 738561,
+      "timestamp": "2024-01-15 09:16:00",
+      "last_trade_time": "2024-01-15 09:15:58",
+      "last_price": 2422.10,
+      "last_quantity": 15,
+      "buy_quantity": 3500,
+      "sell_quantity": 2100,
+      "volume": 121500,
+      "average_price": 2419.20,
+      "oi": 0,
+      "oi_day_high": 0,
+      "oi_day_low": 0,
+      "net_change": 14.10,
+      "lower_circuit_limit": 2178.45,
+      "upper_circuit_limit": 2662.55,
+      "ohlc": { "open": 2420.50, "high": 2426.00, "low": 2418.00, "close": 2420.50 },
+      "depth": {
+        "buy": [
+          {"price": 2422.00, "quantity": 800, "orders": 6},
+          {"price": 2421.75, "quantity": 1300, "orders": 10}
+        ],
+        "sell": [
+          {"price": 2422.25, "quantity": 600, "orders": 4},
+          {"price": 2422.50, "quantity": 1600, "orders": 11}
+        ]
+      }
+    },
+    "2024-01-15 09:17:00": {
+      "instrument_token": 738561,
+      "timestamp": "2024-01-15 09:17:00",
+      "last_trade_time": "2024-01-15 09:16:59",
+      "last_price": 2421.40,
+      "last_quantity": 8,
+      "buy_quantity": 3300,
+      "sell_quantity": 2000,
+      "volume": 122200,
+      "average_price": 2419.60,
+      "oi": 0,
+      "oi_day_high": 0,
+      "oi_day_low": 0,
+      "net_change": 13.00,
+      "lower_circuit_limit": 2178.45,
+      "upper_circuit_limit": 2662.55,
+      "ohlc": { "open": 2422.10, "high": 2423.50, "low": 2419.80, "close": 2422.10 },
+      "depth": {
+        "buy": [
+          {"price": 2421.50, "quantity": 900, "orders": 7},
+          {"price": 2421.25, "quantity": 1400, "orders": 13}
+        ],
+        "sell": [
+          {"price": 2421.75, "quantity": 700, "orders": 5},
+          {"price": 2422.00, "quantity": 1500, "orders": 12}
+        ]
+      }
+    },
+    "2024-01-15 09:18:00": {
+      "instrument_token": 738561,
+      "timestamp": "2024-01-15 09:18:00",
+      "last_trade_time": "2024-01-15 09:17:59",
+      "last_price": 2423.00,
+      "last_quantity": 20,
+      "buy_quantity": 3600,
+      "sell_quantity": 1900,
+      "volume": 123800,
+      "average_price": 2420.10,
+      "oi": 0,
+      "oi_day_high": 0,
+      "oi_day_low": 0,
+      "net_change": 15.50,
+      "lower_circuit_limit": 2178.45,
+      "upper_circuit_limit": 2662.55,
+      "ohlc": { "open": 2421.40, "high": 2424.50, "low": 2420.00, "close": 2421.40 },
+      "depth": {
+        "buy": [
+          {"price": 2422.75, "quantity": 1000, "orders": 8},
+          {"price": 2422.50, "quantity": 1500, "orders": 14}
+        ],
+        "sell": [
+          {"price": 2423.25, "quantity": 800, "orders": 6},
+          {"price": 2423.50, "quantity": 1700, "orders": 13}
+        ]
+      }
+    }
+  },
+  "NSE:TCS": {
+    "2024-01-15 09:15:00": {
+      "instrument_token": 295321,
+      "timestamp": "2024-01-15 09:15:00",
+      "last_trade_time": "2024-01-15 09:14:59",
+      "last_price": 3680.25,
+      "last_quantity": 5,
+      "buy_quantity": 2100,
+      "sell_quantity": 1700,
+      "volume": 98000,
+      "average_price": 3678.10,
+      "oi": 0,
+      "net_change": 8.75,
+      "lower_circuit_limit": 3300.00,
+      "upper_circuit_limit": 4050.00,
+      "ohlc": { "open": 3672.00, "high": 3685.00, "low": 3668.50, "close": 3672.00 },
+      "depth": {
+        "buy": [
+          {"price": 3680.00, "quantity": 600, "orders": 6},
+          {"price": 3679.50, "quantity": 900, "orders": 10}
+        ],
+        "sell": [
+          {"price": 3680.75, "quantity": 500, "orders": 4},
+          {"price": 3681.00, "quantity": 1200, "orders": 9}
+        ]
+      }
+    },
+    "2024-01-15 09:16:00": {
+      "instrument_token": 295321,
+      "timestamp": "2024-01-15 09:16:00",
+      "last_trade_time": "2024-01-15 09:15:58",
+      "last_price": 3682.00,
+      "last_quantity": 12,
+      "buy_quantity": 2300,
+      "sell_quantity": 1600,
+      "volume": 99050,
+      "average_price": 3679.00,
+      "oi": 0,
+      "net_change": 10.50,
+      "lower_circuit_limit": 3300.00,
+      "upper_circuit_limit": 4050.00,
+      "ohlc": { "open": 3680.25, "high": 3686.00, "low": 3678.00, "close": 3680.25 },
+      "depth": {
+        "buy": [
+          {"price": 3682.00, "quantity": 700, "orders": 7},
+          {"price": 3681.50, "quantity": 1000, "orders": 11}
+        ],
+        "sell": [
+          {"price": 3682.25, "quantity": 600, "orders": 5},
+          {"price": 3682.75, "quantity": 1100, "orders": 8}
+        ]
+      }
+    },
+    "2024-01-15 09:17:00": {
+      "instrument_token": 295321,
+      "timestamp": "2024-01-15 09:17:00",
+      "last_trade_time": "2024-01-15 09:16:59",
+      "last_price": 3681.10,
+      "last_quantity": 9,
+      "buy_quantity": 2200,
+      "sell_quantity": 1650,
+      "volume": 99500,
+      "average_price": 3679.40,
+      "oi": 0,
+      "net_change": 9.60,
+      "lower_circuit_limit": 3300.00,
+      "upper_circuit_limit": 4050.00,
+      "ohlc": { "open": 3682.00, "high": 3683.50, "low": 3679.00, "close": 3682.00 },
+      "depth": {
+        "buy": [
+          {"price": 3681.00, "quantity": 800, "orders": 8},
+          {"price": 3680.50, "quantity": 950, "orders": 9}
+        ],
+        "sell": [
+          {"price": 3681.50, "quantity": 700, "orders": 6},
+          {"price": 3682.00, "quantity": 1200, "orders": 10}
+        ]
+      }
+    },
+    "2024-01-15 09:18:00": {
+      "instrument_token": 295321,
+      "timestamp": "2024-01-15 09:18:00",
+      "last_trade_time": "2024-01-15 09:17:59",
+      "last_price": 3683.20,
+      "last_quantity": 14,
+      "buy_quantity": 2500,
+      "sell_quantity": 1500,
+      "volume": 100200,
+      "average_price": 3680.00,
+      "oi": 0,
+      "net_change": 12.00,
+      "lower_circuit_limit": 3300.00,
+      "upper_circuit_limit": 4050.00,
+      "ohlc": { "open": 3681.10, "high": 3684.50, "low": 3680.50, "close": 3681.10 },
+      "depth": {
+        "buy": [
+          {"price": 3683.00, "quantity": 900, "orders": 9},
+          {"price": 3682.50, "quantity": 1100, "orders": 12}
+        ],
+        "sell": [
+          {"price": 3683.50, "quantity": 800, "orders": 7},
+          {"price": 3684.00, "quantity": 1300, "orders": 11}
+        ]
+      }
+    }
+  },
+  "NSE:INFY": {
+    "2024-01-15 09:15:00": {
+      "instrument_token": 408321,
+      "timestamp": "2024-01-15 09:15:00",
+      "last_trade_time": "2024-01-15 09:14:59",
+      "last_price": 1520.75,
+      "last_quantity": 20,
+      "buy_quantity": 2800,
+      "sell_quantity": 1900,
+      "volume": 87000,
+      "average_price": 1518.50,
+      "oi": 0,
+      "net_change": 6.25,
+      "lower_circuit_limit": 1350.00,
+      "upper_circuit_limit": 1680.00,
+      "ohlc": { "open": 1515.00, "high": 1523.00, "low": 1512.00, "close": 1515.00 },
+      "depth": {
+        "buy": [
+          {"price": 1520.50, "quantity": 700, "orders": 6},
+          {"price": 1520.00, "quantity": 1100, "orders": 10}
+        ],
+        "sell": [
+          {"price": 1521.00, "quantity": 600, "orders": 5},
+          {"price": 1521.50, "quantity": 1400, "orders": 12}
+        ]
+      }
+    },
+    "2024-01-15 09:16:00": {
+      "instrument_token": 408321,
+      "timestamp": "2024-01-15 09:16:00",
+      "last_trade_time": "2024-01-15 09:15:58",
+      "last_price": 1521.80,
+      "last_quantity": 18,
+      "buy_quantity": 3000,
+      "sell_quantity": 2000,
+      "volume": 88200,
+      "average_price": 1519.10,
+      "oi": 0,
+      "net_change": 7.30,
+      "lower_circuit_limit": 1350.00,
+      "upper_circuit_limit": 1680.00,
+      "ohlc": { "open": 1520.75, "high": 1524.00, "low": 1518.50, "close": 1520.75 },
+      "depth": {
+        "buy": [
+          {"price": 1521.50, "quantity": 800, "orders": 7},
+          {"price": 1521.00, "quantity": 1200, "orders": 11}
+        ],
+        "sell": [
+          {"price": 1522.00, "quantity": 700, "orders": 6},
+          {"price": 1522.50, "quantity": 1500, "orders": 13}
+        ]
+      }
+    },
+    "2024-01-15 09:18:00": {
+      "instrument_token": 408321,
+      "timestamp": "2024-01-15 09:18:00",
+      "last_trade_time": "2024-01-15 09:17:59",
+      "last_price": 1523.40,
+      "last_quantity": 25,
+      "buy_quantity": 3100,
+      "sell_quantity": 1850,
+      "volume": 89500,
+      "average_price": 1520.00,
+      "oi": 0,
+      "net_change": 8.90,
+      "lower_circuit_limit": 1350.00,
+      "upper_circuit_limit": 1680.00,
+      "ohlc": { "open": 1521.80, "high": 1525.50, "low": 1519.00, "close": 1521.80 },
+      "depth": {
+        "buy": [
+          {"price": 1523.00, "quantity": 900, "orders": 8},
+          {"price": 1522.50, "quantity": 1300, "orders": 12}
+        ],
+        "sell": [
+          {"price": 1523.50, "quantity": 800, "orders": 7},
+          {"price": 1524.00, "quantity": 1600, "orders": 14}
+        ]
+      }
+    }
+  }
+}

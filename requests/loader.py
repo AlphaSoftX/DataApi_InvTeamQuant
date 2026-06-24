@@ -1,6 +1,7 @@
 import pyarrow.parquet as pq
 import pandas as pd
-from config import DATA_FILE
+from config import DATA_FILE_MIN_1, DATA_FILE_DAY_1
+from models import Frequency
 
 
 
@@ -26,9 +27,8 @@ def load_symbol(symbol: str, parquet_freq: str, date_from=None, date_to=None, ba
     - DataFrame with rows when data found
     """
     # load full symbol + frequency in one read
-    table = pq.read_table(DATA_FILE, filters=[
-        ("symbol",    "=", symbol),
-        ("frequency", "=", parquet_freq),
+    table = pq.read_table(DATA_FILE_MIN_1 if parquet_freq == Frequency.MIN_1 else DATA_FILE_DAY_1, filters=[
+        ("symbol", "=", symbol),
     ])
 
     if table.num_rows == 0:

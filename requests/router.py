@@ -4,48 +4,13 @@ from fastapi import APIRouter, HTTPException, Query
 from models import DataRequest, DataResponse, SymbolData, UnavailableInfo, Frequency
 from loader import load_symbol
 from validator import check_empty, check_range_coverage
-from config import RAM_LIMIT, DAILY_SOURCE_FREQS
+from config import RAM_LIMIT, DAILY_SOURCE_FREQS, ORDERBOOK_FILE
 from resampler import convert
+import pyarrow.parquet as pq
+import pandas as pd
+import json
 
 IST = ZoneInfo("Asia/Kolkata")
-
-# Mock cache state
-LIVE_ORDER_BOOK_STATE = {
-    "738561": {  # Mock Token for RELIANCE
-        "instrument_token": 738561,
-        "timestamp": datetime.now(timezone.utc),
-        "depth": {
-            "buy": [
-                {"price": 2420.50, "quantity": 500, "orders": 5},
-                {"price": 2420.25, "quantity": 1100, "orders": 12},
-                {"price": 2420.00, "quantity": 850, "orders": 8},
-                {"price": 2419.75, "quantity": 2300, "orders": 14},
-                {"price": 2419.50, "quantity": 4000, "orders": 31}
-            ],
-            "sell": [
-                {"price": 2420.75, "quantity": 300, "orders": 2},
-                {"price": 2421.00, "quantity": 1400, "orders": 9},
-                {"price": 2421.25, "quantity": 900, "orders": 4},
-                {"price": 2421.50, "quantity": 1950, "orders": 11},
-                {"price": 2421.75, "quantity": 3500, "orders": 22}
-            ]
-        }
-    },
-    "1153601": {  # Mock Token for TCS
-        "instrument_token": 1153601,
-        "timestamp": datetime.now(timezone.utc),
-        "depth": {
-            "buy": [
-                {"price": 3950.00, "quantity": 150, "orders": 2},
-                {"price": 3949.50, "quantity": 420, "orders": 5}
-            ],
-            "sell": [
-                {"price": 3950.50, "quantity": 280, "orders": 3},
-                {"price": 3951.00, "quantity": 610, "orders": 7}
-            ]
-        }
-    }
-}
 
 async def fetch_data(req: DataRequest) -> DataResponse:
     data        = []
@@ -213,15 +178,51 @@ async def get_data_endpoint(
     return convert_to_kite_response(result)
 
 @router.get("/quote", response_model=dict)
-async def get_orderbook_endpoint(symbol: str = Query(alias="i")):
+async def get_orderbook_endpoint(
+    symbol: str = Query(alias="i"),
+    time:   str = Query(alias="time", default=""),
+):
     """
-    Fetches the instantaneous market depth snapshot for requested instrument tokens.
+    Fetches the latest market depth snapshot for a symbol from the orderbook parquet,
+    using the row whose timestamp is closest to but before the given time (or now IST).
     """
-    if symbol in LIVE_ORDER_BOOK_STATE:
-        response_data = { symbol: LIVE_ORDER_BOOK_STATE[symbol] }
-        return { "status": "success", "data": response_data }
+    if time != "":
+        try:
+            lookup_time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S").replace(tzinfo=IST)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="time must be in format: YYYY-MM-DD HH:MM:SS")
     else:
-        raise HTTPException(
-            status_code=404, 
-            detail=f"Instrument token {symbol} not found in active live tracking matrix."
+        lookup_time = datetime.now(tz=IST)
+
+    try:
+        table = pq.read_table(
+            ORDERBOOK_FILE,
+            columns=["datetime", symbol],
+            filters=[("datetime", "<=", lookup_time)],
         )
+    except Exception:
+        raise HTTPException(status_code=404, detail=f"Symbol {symbol} not found in orderbook file.")
+
+    past = table.to_pandas()
+    past["datetime"] = pd.to_datetime(past["datetime"])
+
+    if past.empty:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No orderbook data before {lookup_time.strftime('%Y-%m-%d %H:%M:%S')} IST for {symbol}."
+        )
+
+    past = past.sort_values("datetime")
+
+    last_idx = past[symbol].last_valid_index()
+    raw_value = past.loc[last_idx, symbol] if last_idx is not None else None
+
+    if not raw_value:
+        return {"status": "success", "data": {symbol: {}}}
+
+    tick_data = json.loads(raw_value)
+
+    return {
+        "status": "success",
+        "data": {symbol: tick_data}
+    }
