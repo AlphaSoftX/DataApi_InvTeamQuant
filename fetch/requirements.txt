@@ -1,0 +1,7 @@
+pandas
+pyarrow
+yfinance
+tvDatafeed
+loguru
+fastapi
+uvicorn
